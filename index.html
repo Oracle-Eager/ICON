@@ -37,16 +37,6 @@
         }
         ::-webkit-scrollbar { display: none; }
 
-        #header-title { text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1); }
-
-        /* --- SMOOTHER ANIMATIONS --- */
-        #mini-player, #full-player, #queue-view {
-            transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #search-container {
-            transition: all 300ms ease-out;
-        }
-
         /* --- REDESIGNED PROGRESS BAR (THUMBLESS) --- */
         #full-player input[type=range] {
             -webkit-appearance: none; appearance: none;
@@ -56,6 +46,7 @@
         #full-player input[type=range]::-webkit-slider-runnable-track {
             background: linear-gradient(to right, white var(--progress, 0%), rgba(255,255,255,0.2) var(--progress, 0%));
             height: 0.25rem; border-radius: 1rem;
+            transition: background 0.1s linear;
         }
         #full-player input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none;
@@ -99,7 +90,6 @@
         
         #player-carousel { overflow: hidden; }
         #header { transition: background-color 0.3s ease; }
-        .player-control-btn.active { color: theme('colors.accent'); }
     </style>
 </head>
 <body class="font-sans antialiased">
@@ -109,13 +99,12 @@
         <header id="header" class="fixed top-0 left-0 right-0 max-w-lg mx-auto bg-bg-secondary z-20 px-4 pt-12 pb-4">
             <div class="flex items-center justify-between">
                 <button id="back-button" class="hidden p-2 -ml-2"><i data-lucide="chevron-left" class="w-7 h-7"></i></button>
-                <h1 id="header-title" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-400">Home</h1>
+                <h1 id="header-title" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neutral-200 to-neutral-500">Home</h1>
                 <div class="w-7"></div>
             </div>
-            <div id="search-container" class="relative mt-4 hidden opacity-0 -translate-y-2">
+            <div id="search-container" class="relative mt-4 hidden">
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary"></i>
-                <input id="search-input" type="text" class="w-full py-2.5 pl-10 pr-10 text-text-primary bg-bg-tertiary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" placeholder="Songs, Artists, Playlists">
-                <button id="search-clear-btn" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-tertiary hover:text-text-primary hidden"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <input id="search-input" type="text" class="w-full py-2.5 pl-10 pr-4 text-text-primary bg-bg-tertiary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" placeholder="Songs, Artists, Playlists">
             </div>
         </header>
 
@@ -125,7 +114,7 @@
         </main>
 
         <!-- REDESIGNED FLOATING MINI-PLAYER -->
-        <div id="mini-player" class="fixed bottom-[6.5rem] left-1/2 -translate-x-1/2 w-full max-w-sm z-30 px-2 opacity-0 translate-y-full pointer-events-none" style="will-change: transform, opacity;">
+        <div id="mini-player" class="fixed bottom-[6.5rem] left-1/2 -translate-x-1/2 w-full max-w-sm z-30 px-2 opacity-0 translate-y-full pointer-events-none transition-all duration-300 ease-in-out" style="will-change: transform, opacity;">
             <div class="bg-bg-tertiary/80 backdrop-blur-xl p-2 rounded-full flex items-center gap-3 shadow-2xl relative overflow-hidden" style="box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);">
                 <div id="mini-player-progress" class="absolute bottom-0 left-0 h-0.5 bg-white transition-all duration-200 ease-linear" style="width: 0%;"></div>
                 <img id="mini-player-thumbnail" src="" class="w-10 h-10 rounded-full flex-shrink-0">
@@ -146,7 +135,7 @@
         </nav>
 
         <!-- FULL PLAYER -->
-        <div id="full-player" class="fixed inset-0 bg-bg-secondary z-40 flex flex-col opacity-0 translate-y-full scale-95 pointer-events-none">
+        <div id="full-player" class="fixed inset-0 bg-bg-secondary z-40 flex flex-col opacity-0 translate-y-full scale-95 pointer-events-none transition-all duration-300 ease-in-out">
             <div id="player-bg" class="absolute inset-0 transition-all duration-1000 ease-in-out"></div>
             <div id="dismiss-handle" class="absolute top-4 left-1/2 -translate-x-1/2 w-10 h-1.5 bg-white/30 rounded-full z-30 cursor-grab active:cursor-grabbing"></div>
             
@@ -163,57 +152,23 @@
             </nav>
         </div>
 
-        <!-- QUEUE VIEW -->
-        <div id="queue-view" class="fixed inset-0 bg-bg-secondary/80 backdrop-blur-xl z-50 flex flex-col p-4 pt-12 translate-y-full pointer-events-none opacity-0">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold">Up Next</h2>
-                <button id="close-queue-btn" class="p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-            <div id="queue-list" class="flex-grow overflow-y-auto"></div>
-        </div>
-
-        <!-- CONTEXT MENU FOR LONG PRESS -->
-        <div id="context-menu-backdrop" class="fixed inset-0 bg-black/30 z-40 hidden"></div>
-        <div id="context-menu" class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-bg-tertiary/80 backdrop-blur-xl p-4 rounded-t-2xl z-50 hidden translate-y-full transition-transform duration-300 ease-out" data-item-id="">
-            <div id="context-menu-header" class="flex items-center gap-4 mb-4">
-                <img id="context-menu-thumbnail" src="" class="w-12 h-12 rounded-md">
-                <div>
-                    <p id="context-menu-title" class="font-semibold text-text-primary"></p>
-                    <p id="context-menu-channel" class="text-sm text-text-secondary"></p>
-                </div>
-            </div>
-            <button id="context-menu-delete" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 text-red-500">
-                <i data-lucide="trash-2" class="w-5 h-5"></i>
-                <span>Remove from History</span>
-            </button>
-        </div>
-
         <div id="youtube-player" class="fixed -bottom-[500px] -left-[500px]"></div>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- CONFIGURATION ---
-        const API_KEY = 'AIzaSyB76sWuDITCR3lApwpbrxBrUol9MXoN1rI'; // ⬇️ PASTE YOUR YOUTUBE API KEY HERE ⬇️
+        const API_KEY = 'AIzaSyC7aHwli13dsRFHMYVWMWIdxDA220bJRMw'; // ⬇️ PASTE YOUR YOUTUBE API KEY HERE ⬇️
         const MAX_HISTORY_SIZE = 50;
         
         // --- STATE ---
         let ytPlayer, playerStateInterval, isSeeking = false, isExpandingQueue = false, isAnimatingScroll = false;
-        let longPressTimer = null;
-        const state = { 
-            currentTrack: null, 
-            queue: [], 
-            originalQueue: [],
-            queueIndex: -1, 
-            isPlaying: false,
-            isShuffling: false,
-            repeatMode: 'none' // 'none', 'all', 'one'
-        };
+        const state = { currentTrack: null, queue: [], queueIndex: -1, isPlaying: false };
 
         // --- DOM ELEMENTS ---
         const dom = {
             header: document.getElementById('header'), headerTitle: document.getElementById('header-title'), backButton: document.getElementById('back-button'),
-            searchContainer: document.getElementById('search-container'), searchInput: document.getElementById('search-input'), searchClearBtn: document.getElementById('search-clear-btn'),
+            searchContainer: document.getElementById('search-container'), searchInput: document.getElementById('search-input'),
             contentArea: document.getElementById('content-area'), loader: document.getElementById('loader'),
             mainContent: document.getElementById('main-content'), miniPlayer: document.getElementById('mini-player'),
             miniPlayerClickArea: document.getElementById('mini-player-click-area'), miniPlayerThumbnail: document.getElementById('mini-player-thumbnail'),
@@ -222,16 +177,7 @@
             playerCarousel: document.getElementById('player-carousel'), playerPagesContainer: null,
             dismissHandle: document.getElementById('dismiss-handle'),
             playerNav: document.getElementById('player-nav'),
-            tabs: { home: document.getElementById('home-tab'), browse: document.getElementById('browse-tab'), library: document.getElementById('library-tab') },
-            queueView: document.getElementById('queue-view'), queueList: document.getElementById('queue-list'), closeQueueBtn: document.getElementById('close-queue-btn'),
-            contextMenu: {
-                backdrop: document.getElementById('context-menu-backdrop'),
-                menu: document.getElementById('context-menu'),
-                thumbnail: document.getElementById('context-menu-thumbnail'),
-                title: document.getElementById('context-menu-title'),
-                channel: document.getElementById('context-menu-channel'),
-                deleteBtn: document.getElementById('context-menu-delete'),
-            }
+            tabs: { home: document.getElementById('home-tab'), browse: document.getElementById('browse-tab'), library: document.getElementById('library-tab') }
         };
 
         // --- DATABASE (IndexedDB) ---
@@ -279,15 +225,6 @@
                     request.onsuccess = () => resolve(request.result.sort((a, b) => b.timestamp - a.timestamp));
                 });
             },
-            deleteHistory(videoId) {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction('history', 'readwrite');
-                    tx.onerror = (e) => reject(e.target.error);
-                    tx.oncomplete = () => resolve();
-                    const store = tx.objectStore('history');
-                    store.delete(videoId);
-                });
-            }
         };
 
         // --- YOUTUBE API ---
@@ -352,21 +289,13 @@
                 } else {
                     clearInterval(playerStateInterval);
                 }
-                if (event.data === YT.PlayerState.ENDED) this.handleTrackEnd();
-            },
-            handleTrackEnd() {
-                if (state.repeatMode === 'one') {
-                    this.playCurrentIndex();
-                } else {
-                    this.changeTrack(1);
-                }
+                if (event.data === YT.PlayerState.ENDED) Player.next();
             },
             async playTrack(track, contextQueue = null) {
                 const validQueue = (contextQueue || [track]).filter(t => t && t.videoId);
                 const newIndex = validQueue.findIndex(t => t.videoId === track.videoId);
                 
-                state.queue = [...validQueue];
-                state.originalQueue = [...validQueue];
+                state.queue = validQueue;
                 state.queueIndex = newIndex > -1 ? newIndex : 0;
                 
                 UI.buildPlayerCarousel();
@@ -388,7 +317,6 @@
                     const relatedData = await API.getRelated(track.videoId);
                     const relatedTracks = relatedData?.items?.map(UI.formatItem).filter(Boolean) || [];
                     state.queue = [track, ...relatedTracks];
-                    state.originalQueue = [...state.queue];
                     UI.buildPlayerCarousel();
                 } catch (error) { console.warn("Could not fetch related videos for initial queue."); }
             },
@@ -401,60 +329,26 @@
                     const newTracks = relatedData?.items?.map(UI.formatItem).filter(Boolean);
                     if (newTracks && newTracks.length > 0) {
                         state.queue.push(...newTracks);
-                        state.originalQueue.push(...newTracks);
                         UI.appendPlayerPages(newTracks);
                     }
                 } catch (error) { console.error("Failed to expand queue:", error); }
                 finally { isExpandingQueue = false; }
             },
             togglePlayPause() { if (!state.currentTrack) return; state.isPlaying ? ytPlayer.pauseVideo() : ytPlayer.playVideo(); },
-            changeTrack(direction) { // direction is 1 for next, -1 for previous
-                if (isAnimatingScroll) return;
-                let newIndex = state.queueIndex + direction;
-
-                if (newIndex >= state.queue.length) {
-                    if (state.repeatMode === 'all') newIndex = 0;
-                    else return; // End of queue
-                }
-                if (newIndex < 0) {
-                    return; // Start of queue
-                }
-                this.jumpToQueueIndex(newIndex);
-            },
-            jumpToQueueIndex(index) {
+            next() { this.navigateToIndex(state.queueIndex + 1); },
+            previous() { this.navigateToIndex(state.queueIndex - 1); },
+            navigateToIndex(index) {
                 if (isAnimatingScroll || index < 0 || index >= state.queue.length) return;
                 isAnimatingScroll = true;
                 
-                UI.transitionCarouselToIndex(index);
+                if (dom.playerPagesContainer) {
+                    dom.playerPagesContainer.style.transform = `translateY(-${index * 100}vh)`;
+                }
+
                 state.queueIndex = index;
                 this.playCurrentIndex();
-                
                 if (state.queueIndex >= state.queue.length - 3) this.expandQueue();
-                setTimeout(() => { isAnimatingScroll = false; }, 500);
-            },
-            toggleShuffle() {
-                state.isShuffling = !state.isShuffling;
-                const currentTrack = state.queue[state.queueIndex];
-                if (state.isShuffling) {
-                    const upcoming = state.queue.slice(state.queueIndex + 1);
-                    for (let i = upcoming.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [upcoming[i], upcoming[j]] = [upcoming[j], upcoming[i]];
-                    }
-                    state.queue = state.queue.slice(0, state.queueIndex + 1).concat(upcoming);
-                } else {
-                    const originalIndex = state.originalQueue.findIndex(t => t.videoId === currentTrack.videoId);
-                    state.queue = [...state.originalQueue];
-                    state.queueIndex = originalIndex;
-                }
-                UI.updatePlayerControls();
-                UI.buildPlayerCarousel();
-            },
-            toggleRepeat() {
-                const modes = ['none', 'all', 'one'];
-                const currentIndex = modes.indexOf(state.repeatMode);
-                state.repeatMode = modes[(currentIndex + 1) % modes.length];
-                UI.updatePlayerControls();
+                setTimeout(() => { isAnimatingScroll = false; }, 450);
             },
             startProgressInterval() {
                 clearInterval(playerStateInterval);
@@ -508,11 +402,9 @@
             },
             buildPlayerCarousel() {
                 const pagesHtml = state.queue.map(this.createPlayerPage).join('');
-                dom.playerCarousel.innerHTML = `<div id="player-pages-container" class="h-full w-full" style="transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);">${pagesHtml}</div>`;
+                dom.playerCarousel.innerHTML = `<div id="player-pages-container" class="h-full w-full" style="transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(-${state.queueIndex * 100}vh);">${pagesHtml}</div>`;
                 dom.playerPagesContainer = document.getElementById('player-pages-container');
-                this.transitionCarouselToIndex(state.queueIndex, true);
                 lucide.createIcons();
-                this.updatePlayerControls();
             },
             appendPlayerPages(tracks) {
                 if (!dom.playerPagesContainer) return;
@@ -520,12 +412,6 @@
                 const newPagesHtml = tracks.map((track, i) => this.createPlayerPage(track, startingIndex + i)).join('');
                 dom.playerPagesContainer.insertAdjacentHTML('beforeend', newPagesHtml);
                 lucide.createIcons();
-            },
-            transitionCarouselToIndex(index, instant = false) {
-                if (!dom.playerPagesContainer) return;
-                if (instant) dom.playerPagesContainer.style.transition = 'none';
-                dom.playerPagesContainer.style.transform = `translateY(-${index * 100}vh)`;
-                if (instant) requestAnimationFrame(() => dom.playerPagesContainer.style.transition = '');
             },
             createPlayerPage(track, index) {
                 return `
@@ -546,15 +432,10 @@
                                     <span id="total-duration">0:00</span>
                                 </div>
                             </div>
-                            <div class="flex justify-around items-center mt-6">
-                                <button class="shuffle-btn player-control-btn text-text-secondary active:scale-90 transition-transform"><i data-lucide="shuffle" class="w-6 h-6"></i></button>
+                            <div class="flex justify-center items-center gap-8 mt-6">
                                 <button class="prev-btn text-text-secondary active:scale-90 transition-transform"><i data-lucide="skip-back" class="w-8 h-8"></i></button>
                                 <button class="play-pause-btn p-5 bg-white rounded-full text-black active:scale-90 transition-transform shadow-lg"></button>
                                 <button class="next-btn text-text-secondary active:scale-90 transition-transform"><i data-lucide="skip-forward" class="w-8 h-8"></i></button>
-                                <button class="repeat-btn player-control-btn text-text-secondary active:scale-90 transition-transform"><i data-lucide="repeat" class="w-6 h-6"></i></button>
-                            </div>
-                            <div class="flex justify-end mt-4 px-4">
-                                <button class="queue-btn text-text-secondary"><i data-lucide="list-music" class="w-6 h-6"></i></button>
                             </div>
                         </div>
                     </div>
@@ -576,17 +457,6 @@
                 });
                 lucide.createIcons();
             },
-            updatePlayerControls() {
-                const shuffleBtn = document.querySelector('.shuffle-btn');
-                const repeatBtn = document.querySelector('.repeat-btn');
-                if (shuffleBtn) shuffleBtn.classList.toggle('active', state.isShuffling);
-                if (repeatBtn) {
-                    repeatBtn.classList.toggle('active', state.repeatMode !== 'none');
-                    if (state.repeatMode === 'one') repeatBtn.innerHTML = `<i data-lucide="repeat-1" class="w-6 h-6"></i>`;
-                    else repeatBtn.innerHTML = `<i data-lucide="repeat" class="w-6 h-6"></i>`;
-                    lucide.createIcons();
-                }
-            },
             showMiniPlayer() { dom.miniPlayer.classList.remove('opacity-0', 'translate-y-full', 'pointer-events-none'); dom.mainContent.style.paddingBottom = '160px'; },
             showFullPlayer() { dom.fullPlayer.classList.remove('opacity-0', 'translate-y-full', 'scale-95', 'pointer-events-none'); },
             hideFullPlayer() { dom.fullPlayer.classList.add('opacity-0', 'translate-y-full', 'scale-95', 'pointer-events-none'); },
@@ -601,55 +471,9 @@
                 if(playerTab) { playerTab.classList.add('active'); playerTab.classList.remove('text-text-secondary'); }
             },
             updateHeader(title, showSearch = false, showBack = false) {
-                dom.headerTitle.textContent = title;
-                if (showSearch) {
-                    dom.searchContainer.classList.remove('hidden', 'opacity-0', '-translate-y-2');
-                } else {
-                    dom.searchContainer.classList.add('opacity-0', '-translate-y-2');
-                    setTimeout(() => dom.searchContainer.classList.add('hidden'), 300);
-                }
-                dom.backButton.style.display = showBack ? 'block' : 'none';
-                dom.headerTitle.style.textAlign = showBack ? 'center' : 'left';
+                dom.headerTitle.textContent = title; dom.searchContainer.style.display = showSearch ? 'block' : 'none';
+                dom.backButton.style.display = showBack ? 'block' : 'none'; dom.headerTitle.style.textAlign = showBack ? 'center' : 'left';
                 dom.headerTitle.style.flexGrow = showBack ? '1' : '0';
-            },
-            showContextMenu(itemData) {
-                dom.contextMenu.thumbnail.src = itemData.thumbnail;
-                dom.contextMenu.title.textContent = itemData.title;
-                dom.contextMenu.channel.textContent = itemData.channel;
-                dom.contextMenu.menu.dataset.itemId = itemData.videoId;
-                dom.contextMenu.backdrop.classList.remove('hidden');
-                dom.contextMenu.menu.classList.remove('hidden');
-                requestAnimationFrame(() => {
-                    dom.contextMenu.menu.classList.remove('translate-y-full');
-                });
-            },
-            hideContextMenu() {
-                dom.contextMenu.menu.classList.add('translate-y-full');
-                dom.contextMenu.backdrop.classList.add('hidden');
-                setTimeout(() => {
-                    dom.contextMenu.menu.classList.add('hidden');
-                }, 300);
-            },
-            renderQueueView() {
-                const queueHtml = state.queue.map((track, index) => `
-                    <div class="queue-item flex items-center gap-4 p-2 rounded-lg cursor-pointer ${index === state.queueIndex ? 'bg-white/10' : 'hover:bg-white/5'}" data-index="${index}">
-                        <img src="${track.thumbnail}" class="w-12 h-12 rounded-md object-cover flex-shrink-0">
-                        <div class="flex-1 overflow-hidden">
-                            <p class="font-semibold truncate ${index === state.queueIndex ? 'text-accent' : 'text-text-primary'}">${track.title}</p>
-                            <p class="text-text-secondary text-sm truncate">${track.channel}</p>
-                        </div>
-                    </div>
-                `).join('');
-                dom.queueList.innerHTML = queueHtml;
-            },
-            showQueueView() {
-                this.renderQueueView();
-                dom.queueView.classList.remove('translate-y-full', 'opacity-0');
-                dom.queueView.classList.add('pointer-events-auto');
-            },
-            hideQueueView() {
-                dom.queueView.classList.add('translate-y-full', 'opacity-0');
-                dom.queueView.classList.remove('pointer-events-auto');
             },
             async renderHomeView() { /* ... defined below ... */ },
             async renderBrowseView(query) { /* ... defined below ... */ },
@@ -660,67 +484,42 @@
         // --- EVENT LISTENERS ---
         function setupEventListeners() {
             const debounce = (func, delay) => { let timeout; return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); }; };
+            dom.searchInput.addEventListener('input', debounce(e => { const query = e.target.value.trim(); if (query.length > 2) UI.renderBrowseView(query); }, 500));
             
-            dom.searchInput.addEventListener('input', debounce(e => {
-                const query = e.target.value.trim();
-                dom.searchClearBtn.classList.toggle('hidden', query.length === 0);
-                if (query.length > 2) UI.renderBrowseView(query);
-            }, 500));
-
-            dom.searchClearBtn.addEventListener('click', () => {
-                dom.searchInput.value = '';
-                dom.searchClearBtn.classList.add('hidden');
-                dom.contentArea.innerHTML = `<p class="text-text-secondary text-center py-10">Search for your favorite music.</p>`;
-                dom.searchInput.focus();
-            });
-
-            // --- LONG PRESS LOGIC ---
-            const handleLongPress = (e) => {
-                if (!dom.tabs.library.classList.contains('active')) return;
-                const card = e.target.closest('.item-card');
-                if (!card || !card.dataset.item) return;
-                try {
-                    const itemData = JSON.parse(card.dataset.item);
-                    if (itemData.isPlaylist) return;
-                    UI.showContextMenu(itemData);
-                } catch (err) { console.error("Error parsing item data for context menu:", err); }
-            };
-            const cancelLongPress = () => clearTimeout(longPressTimer);
-            dom.contentArea.addEventListener('mousedown', e => { if (e.target.closest('.item-card')) longPressTimer = setTimeout(() => handleLongPress(e), 500); });
-            dom.contentArea.addEventListener('mouseup', cancelLongPress);
-            dom.contentArea.addEventListener('mouseleave', cancelLongPress);
-            dom.contentArea.addEventListener('touchstart', e => { if (e.target.closest('.item-card')) longPressTimer = setTimeout(() => handleLongPress(e), 500); }, { passive: true });
-            dom.contentArea.addEventListener('touchend', cancelLongPress);
-            dom.contentArea.addEventListener('touchmove', cancelLongPress, { passive: true });
-
             dom.contentArea.addEventListener('click', e => {
                 const card = e.target.closest('[data-item]');
                 if (!card) return;
+
                 try {
                     const itemData = JSON.parse(card.dataset.item);
+
                     if (itemData.isPlaylist) {
                         UI.updateHeader(itemData.title, false, true);
                         UI.renderPlaylistView(itemData);
                         return;
                     }
+
                     if (itemData.videoId) {
                         let contextQueue = null;
                         const contextContainer = card.closest('[data-context-queue]');
+
                         if (contextContainer) {
-                            try { contextQueue = JSON.parse(contextContainer.dataset.contextQueue); } catch (queueError) { console.warn("Could not parse context queue."); }
+                            try {
+                                const fullQueue = JSON.parse(contextContainer.dataset.contextQueue);
+                                if (Array.isArray(fullQueue) && fullQueue.length > 0) {
+                                    contextQueue = fullQueue;
+                                }
+                            } catch (queueError) {
+                                console.warn("Could not parse context queue. Playing single track.", queueError);
+                            }
                         }
+                        
                         Player.playTrack(itemData, contextQueue);
                     }
-                } catch (err) { console.error("Failed to process click event:", err); }
-            });
 
-            dom.contextMenu.backdrop.addEventListener('click', UI.hideContextMenu);
-            dom.contextMenu.deleteBtn.addEventListener('click', async () => {
-                const videoId = dom.contextMenu.menu.dataset.itemId;
-                if (!videoId) return;
-                await DB.deleteHistory(videoId);
-                UI.hideContextMenu();
-                UI.renderLibraryView();
+                } catch (err) {
+                    console.error("Failed to process click event:", err);
+                }
             });
 
             dom.backButton.addEventListener('click', () => { dom.tabs.browse.click(); });
@@ -729,11 +528,8 @@
             
             dom.playerCarousel.addEventListener('click', e => {
                 if (e.target.closest('.play-pause-btn')) Player.togglePlayPause();
-                if (e.target.closest('.next-btn')) Player.changeTrack(1);
-                if (e.target.closest('.prev-btn')) Player.changeTrack(-1);
-                if (e.target.closest('.shuffle-btn')) Player.toggleShuffle();
-                if (e.target.closest('.repeat-btn')) Player.toggleRepeat();
-                if (e.target.closest('.queue-btn')) UI.showQueueView();
+                if (e.target.closest('.next-btn')) Player.next();
+                if (e.target.closest('.prev-btn')) Player.previous();
             });
             dom.playerCarousel.addEventListener('input', e => { if (e.target.matches('#progress-bar')) { isSeeking = true; ytPlayer.seekTo(e.target.value, true); } });
             dom.playerCarousel.addEventListener('change', e => { if (e.target.matches('#progress-bar')) isSeeking = false; });
@@ -743,9 +539,9 @@
             dom.playerCarousel.addEventListener('touchend', e => {
                 const touchEndY = e.changedTouches[0].clientY;
                 const deltaY = touchStartY - touchEndY;
-                if (Math.abs(deltaY) > 50) { if (deltaY > 0) Player.changeTrack(1); else Player.changeTrack(-1); }
+                if (Math.abs(deltaY) > 50) { if (deltaY > 0) Player.next(); else Player.previous(); }
             }, { passive: true });
-            dom.playerCarousel.addEventListener('wheel', e => { e.preventDefault(); if (e.deltaY > 0) Player.changeTrack(1); else Player.changeTrack(-1); }, { passive: false });
+            dom.playerCarousel.addEventListener('wheel', e => { e.preventDefault(); if (e.deltaY > 0) Player.next(); else Player.previous(); }, { passive: false });
 
             let handleTouchStartY = 0;
             dom.dismissHandle.addEventListener('touchstart', e => { handleTouchStartY = e.touches[0].clientY; }, { passive: true });
@@ -783,16 +579,6 @@
                 dom.fullPlayer.addEventListener('transitionend', () => {
                     document.getElementById(targetTabId).click();
                 }, { once: true });
-            });
-
-            dom.closeQueueBtn.addEventListener('click', UI.hideQueueView);
-            dom.queueList.addEventListener('click', e => {
-                const item = e.target.closest('.queue-item');
-                if (item && item.dataset.index) {
-                    const index = parseInt(item.dataset.index, 10);
-                    Player.jumpToQueueIndex(index);
-                    UI.hideQueueView();
-                }
             });
         };
 
