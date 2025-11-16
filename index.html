@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ICON</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,11 +16,17 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
                     colors: {
-                        'accent': '#3B82F6', 'accent-dark': '#2563EB',
-                        'bg-primary': '#0A0A0A', 'bg-secondary': '#121212',
-                        'bg-tertiary': '#1C1C1E', 'text-primary': '#FFFFFF', 'text-secondary': '#A0A0A0',
+                        'accent': '#3B82F6',
+                        'accent-dark': '#2563EB',
+                        'bg-primary': '#000000',
+                        'bg-secondary': '#121212',
+                        'bg-tertiary': '#1C1C1E',
+                        'text-primary': '#FFFFFF',
+                        'text-secondary': '#B3B3B3',
                         'text-tertiary': '#606060',
                     }
                 }
@@ -29,621 +35,709 @@
     </script>
 
     <style>
-        html, body { height: 100%; overflow: hidden; }
-        body { 
-            -webkit-tap-highlight-color: transparent; 
-            user-select: none; 
-            background: linear-gradient(180deg, #121212 0%, #0A0A0A 100%);
+        html, body {
+            height: 100%;
+            overflow: hidden;
         }
-        ::-webkit-scrollbar { display: none; }
+        body {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            background: radial-gradient(ellipse at top, #1a1a1a, #000000 80%);
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* --- DYNAMIC SCROLLING HEADER --- */
+        #header {
+            background-color: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+        }
+        #header.scrolled {
+            /* MODIFIED: Simplified glass effect */
+            background: rgba(18, 18, 18, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
         /* --- REDESIGNED PROGRESS BAR (THUMBLESS) --- */
         #full-player input[type=range] {
-            -webkit-appearance: none; appearance: none;
-            background: transparent; cursor: pointer; width: 100%;
-            height: 1.5rem; padding: 0; margin: 0;
+            -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer;
+            width: 100%; height: 1.5rem; padding: 0; margin: 0;
         }
         #full-player input[type=range]::-webkit-slider-runnable-track {
             background: linear-gradient(to right, white var(--progress, 0%), rgba(255,255,255,0.2) var(--progress, 0%));
-            height: 0.25rem; border-radius: 1rem;
-            transition: background 0.1s linear;
+            height: 0.25rem; border-radius: 1rem; transition: background 0.1s linear;
         }
         #full-player input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none;
-            width: 0; height: 0; border: 0; box-shadow: none;
+            -webkit-appearance: none; appearance: none; width: 0; height: 0; border: 0; box-shadow: none;
         }
 
-        /* --- ADVANCED FLOATING UI (ICON-ONLY) --- */
-        #main-nav, #player-nav {
-            left: 50%;
-            transform: translateX(-50%);
-            width: auto;
-            bottom: 1rem;
-            border-radius: 9999px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
-            border-top: none;
-        }
-        .tab-item {
-            padding: 0.5rem;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .tab-item:active {
-            transform: scale(0.9);
-        }
-        .icon-wrapper {
-            width: 3rem; height: 3rem;
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            transition: all 0.3s ease;
-        }
-        .tab-item.active .icon-wrapper {
-            background-color: theme('colors.accent');
-            transform: scale(1.1);
-            box-shadow: 0 0 20px theme('colors.accent');
-        }
-        .tab-item.active i {
-            color: white;
+        /* --- MODIFIED: ADVANCED GLASS UI (SIMPLIFIED) --- */
+        .glass-ui {
+            background: rgba(28, 28, 30, 0.35); /* Removed highlight, kept transparency */
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Reverted to a softer border */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
         }
         
-        #player-carousel { overflow: hidden; }
-        #header { transition: background-color 0.3s ease; }
+        .tab-item {
+            padding: 0.5rem; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; z-index: 10;
+        }
+        .tab-item:active { transform: scale(0.9); }
+        .icon-wrapper {
+            width: 3rem; height: 3rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto; transition: all 0.3s ease;
+        }
+        .tab-item.active .icon-wrapper {
+            background-color: theme('colors.accent'); transform: scale(1.1); box-shadow: 0 0 20px theme('colors.accent');
+        }
+        .tab-item.active i { color: white; }
+
+        /* --- HORIZONTAL SCROLLING --- */
+        .horizontal-scroll { -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+
+        /* --- SMOOTH ENTRANCE ANIMATION --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .item-card, .metal-card, .hero-card { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+
+        /* --- CSS SCROLL SNAP FOR PLAYER --- */
+        #player-carousel { scroll-snap-type: y mandatory; overflow-y: scroll; scroll-behavior: smooth; }
+        .player-page { scroll-snap-align: start; }
+
+        /* --- METAL CARD STYLES --- */
+        .metal-card {
+            aspect-ratio: 2 / 1; border-radius: 0.75rem; padding: 1rem; cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            background: linear-gradient(145deg, #2a2a2e, #1c1c1e);
+            border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .metal-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3); background: linear-gradient(145deg, #3a3a3e, #2c2c2e);
+        }
+        .metal-card:active { transform: scale(0.96); }
+        
+        /* --- METALLIC TEXT EFFECT --- */
+        .metallic-text {
+            background: linear-gradient(180deg, #E5E5E5, #A3A3A3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        /* --- HERO CARD STYLES (HOME SCREEN) --- */
+        .hero-card {
+            background: linear-gradient(135deg, theme('colors.bg-tertiary'), theme('colors.bg-secondary'));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem; padding: 1rem; display: flex; align-items: center; gap: 1rem;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .hero-card:hover {
+            transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        .hero-card:active { transform: translateY(-1px) scale(0.98); }
+        .hero-icon-wrapper {
+            width: 3rem; height: 3rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, theme('colors.accent'), theme('colors.accent-dark'));
+        }
+
+        /* --- FULL PLAYER IMPROVEMENTS --- */
+        #full-player { will-change: transform, opacity; }
+        .player-album-art {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+        }
+        .player-album-art-container:hover .player-album-art {
+            transform: perspective(1000px) rotateY(10deg) rotateX(5deg) scale(1.05);
+            box-shadow: -10px 10px 30px rgba(0,0,0,0.7);
+        }
+        .player-control-btn {
+            color: theme('colors.text-secondary'); transition: color 0.2s ease, transform 0.2s ease;
+        }
+        .player-control-btn:hover { color: theme('colors.text-primary'); }
+        .player-control-btn:active { transform: scale(0.9); }
+        .player-control-btn.active { color: theme('colors.accent'); }
+
     </style>
 </head>
 <body class="font-sans antialiased">
 
     <div id="app-container" class="h-full w-full max-w-lg mx-auto flex flex-col relative bg-transparent text-text-primary">
-        
-        <header id="header" class="fixed top-0 left-0 right-0 max-w-lg mx-auto bg-bg-secondary z-20 px-4 pt-12 pb-4">
+
+        <header id="header" class="fixed top-0 left-0 right-0 max-w-lg mx-auto z-20 px-4 pt-12 pb-4">
             <div class="flex items-center justify-between">
-                <button id="back-button" class="hidden p-2 -ml-2"><i data-lucide="chevron-left" class="w-7 h-7"></i></button>
-                <h1 id="header-title" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neutral-200 to-neutral-500">Home</h1>
-                <div class="w-7"></div>
+                <div class="p-2 -ml-2">
+                    <i data-lucide="waveform" class="w-7 h-7 text-accent"></i>
+                </div>
+                <h1 id="header-title" class="text-2xl font-bold text-text-primary whitespace-nowrap">Home</h1>
+                <button class="p-2 -mr-2">
+                    <i data-lucide="user-circle-2" class="w-7 h-7 text-text-secondary"></i>
+                </button>
             </div>
             <div id="search-container" class="relative mt-4 hidden">
-                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary"></i>
-                <input id="search-input" type="text" class="w-full py-2.5 pl-10 pr-4 text-text-primary bg-bg-tertiary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" placeholder="Songs, Artists, Playlists">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary z-10"></i>
+                <input id="search-input" type="text" class="w-full py-3 pl-12 pr-4 text-text-primary bg-bg-tertiary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent" placeholder="What do you want to listen to?">
+                <p id="search-results-label" class="hidden absolute top-full mt-2 left-0 text-sm text-text-secondary"></p>
             </div>
         </header>
 
-        <main id="main-content" class="flex-grow overflow-y-auto pt-36 pb-40">
-            <div id="content-area" class="px-4"></div>
-            <div id="loader" class="hidden text-center py-10"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-text-tertiary mx-auto"></div></div>
+        <main id="main-content" class="flex-grow overflow-y-auto pt-32 pb-40 transition-all duration-300">
+            <div id="content-area"></div>
+            <div id="loader" class="hidden text-center py-10">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-text-tertiary mx-auto"></div>
+            </div>
         </main>
 
-        <!-- REDESIGNED FLOATING MINI-PLAYER -->
+        <!-- MINI-PLAYER -->
         <div id="mini-player" class="fixed bottom-[6.5rem] left-1/2 -translate-x-1/2 w-full max-w-sm z-30 px-2 opacity-0 translate-y-full pointer-events-none transition-all duration-300 ease-in-out" style="will-change: transform, opacity;">
-            <div class="bg-bg-tertiary/80 backdrop-blur-xl p-2 rounded-full flex items-center gap-3 shadow-2xl relative overflow-hidden" style="box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <div id="mini-player-click-area" class="glass-ui p-2 rounded-full flex items-center gap-3 relative overflow-hidden cursor-pointer">
                 <div id="mini-player-progress" class="absolute bottom-0 left-0 h-0.5 bg-white transition-all duration-200 ease-linear" style="width: 0%;"></div>
                 <img id="mini-player-thumbnail" src="" class="w-10 h-10 rounded-full flex-shrink-0">
-                <div id="mini-player-click-area" class="flex-grow overflow-hidden cursor-pointer">
-                    <p id="mini-player-title" class="font-semibold truncate"></p>
-                </div>
-                <button id="mini-play-pause-btn" class="p-2 text-text-primary active:scale-90 transition-transform flex-shrink-0 mr-1"></button>
+                <p id="mini-player-title" class="flex-1 font-semibold text-sm truncate"></p>
+                <button id="mini-play-pause-btn" class="w-10 h-10 flex items-center justify-center text-white transition-transform flex-shrink-0 mr-1"></button>
             </div>
         </div>
 
-        <!-- REDESIGNED ICON-ONLY FLOATING NAVIGATION -->
-        <nav id="main-nav" class="fixed bg-bg-primary/80 backdrop-blur-xl z-20">
-            <div class="flex justify-around items-center h-auto p-2 gap-6">
-                <button id="home-tab" class="tab-item text-center active"><div class="icon-wrapper"><i data-lucide="home" class="w-6 h-6"></i></div></button>
-                <button id="browse-tab" class="tab-item text-center text-text-secondary"><div class="icon-wrapper"><i data-lucide="search" class="w-6 h-6"></i></div></button>
-                <button id="library-tab" class="tab-item text-center text-text-secondary"><div class="icon-wrapper"><i data-lucide="library" class="w-6 h-6"></i></div></button>
-            </div>
-        </nav>
+        <!-- NAVIGATION BAR -->
+        <div id="nav-container" class="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-sm z-20 px-2">
+            <nav id="main-nav" class="glass-ui w-full rounded-full">
+                <div class="flex justify-around items-center h-auto p-2">
+                    <button id="home-tab" class="tab-item text-center active"><div class="icon-wrapper">
+                        <i data-lucide="home" class="w-6 h-6"></i>
+                    </div>
+                    </button>
+                    <button id="browse-tab" class="tab-item text-center text-text-secondary"><div class="icon-wrapper">
+                        <i data-lucide="search" class="w-6 h-6"></i>
+                    </div>
+                    </button>
+                    <button id="library-tab" class="tab-item text-center text-text-secondary"><div class="icon-wrapper">
+                        <i data-lucide="library" class="w-6 h-6"></i>
+                    </div>
+                    </button>
+                </div>
+            </nav>
+        </div>
 
         <!-- FULL PLAYER -->
         <div id="full-player" class="fixed inset-0 bg-bg-secondary z-40 flex flex-col opacity-0 translate-y-full scale-95 pointer-events-none transition-all duration-300 ease-in-out">
             <div id="player-bg" class="absolute inset-0 transition-all duration-1000 ease-in-out"></div>
             <div id="dismiss-handle" class="absolute top-4 left-1/2 -translate-x-1/2 w-10 h-1.5 bg-white/30 rounded-full z-30 cursor-grab active:cursor-grabbing"></div>
-            
+
             <div id="player-carousel" class="w-full h-full">
                 <!-- Player pages container will be dynamically inserted here -->
             </div>
-
-            <nav id="player-nav" class="fixed bg-black/30 backdrop-blur-xl z-30">
-                <div class="flex justify-around items-center h-auto p-2 gap-6">
-                    <button data-target-tab="home-tab" class="tab-item text-center text-text-secondary"><div class="icon-wrapper"><i data-lucide="home" class="w-6 h-6"></i></div></button>
-                    <button data-target-tab="browse-tab" class="tab-item text-center text-text-secondary"><div class="icon-wrapper"><i data-lucide="search" class="w-6 h-6"></i></div></button>
-                    <button data-target-tab="library-tab" class="tab-item text-center text-text-secondary"><div class="icon-wrapper"><i data-lucide="library" class="w-6 h-6"></i></div></button>
-                </div>
-            </nav>
         </div>
 
         <div id="youtube-player" class="fixed -bottom-[500px] -left-[500px]"></div>
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- CONFIGURATION ---
-        const API_KEY = 'AIzaSyC7aHwli13dsRFHMYVWMWIdxDA220bJRMw'; // ⬇️ PASTE YOUR YOUTUBE API KEY HERE ⬇️
-        const MAX_HISTORY_SIZE = 50;
-        
-        // --- STATE ---
-        let ytPlayer, playerStateInterval, isSeeking = false, isExpandingQueue = false, isAnimatingScroll = false;
-        const state = { currentTrack: null, queue: [], queueIndex: -1, isPlaying: false };
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION ---
+            const API_KEY = 'AIzaSyC7aHwli13dsRFHMYVWMWIdxDA220bJRMw'; // ⬇️ PASTE YOUR YOUTUBE API KEY HERE ⬇️
+            const MAX_HISTORY_SIZE = 50;
 
-        // --- DOM ELEMENTS ---
-        const dom = {
-            header: document.getElementById('header'), headerTitle: document.getElementById('header-title'), backButton: document.getElementById('back-button'),
-            searchContainer: document.getElementById('search-container'), searchInput: document.getElementById('search-input'),
-            contentArea: document.getElementById('content-area'), loader: document.getElementById('loader'),
-            mainContent: document.getElementById('main-content'), miniPlayer: document.getElementById('mini-player'),
-            miniPlayerClickArea: document.getElementById('mini-player-click-area'), miniPlayerThumbnail: document.getElementById('mini-player-thumbnail'),
-            miniPlayerTitle: document.getElementById('mini-player-title'), miniPlayPauseBtn: document.getElementById('mini-play-pause-btn'),
-            fullPlayer: document.getElementById('full-player'), playerBg: document.getElementById('player-bg'),
-            playerCarousel: document.getElementById('player-carousel'), playerPagesContainer: null,
-            dismissHandle: document.getElementById('dismiss-handle'),
-            playerNav: document.getElementById('player-nav'),
-            tabs: { home: document.getElementById('home-tab'), browse: document.getElementById('browse-tab'), library: document.getElementById('library-tab') }
-        };
+            // --- STATE ---
+            let ytPlayer, playerStateInterval, isSeeking = false, isExpandingQueue = false;
+            let playerObserver = null;
+            const state = {
+                currentTrack: null, queue: [], queueIndex: -1, isPlaying: false, isShuffle: false, isRepeat: false
+            };
 
-        // --- DATABASE (IndexedDB) ---
-        const DB = {
-            db: null,
-            init() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open('ICON_DB_V2', 2);
-                    request.onerror = (e) => reject("IndexedDB error: " + e.target.errorCode);
-                    request.onsuccess = (e) => { this.db = e.target.result; resolve(); };
-                    request.onupgradeneeded = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains('history')) {
-                            const store = db.createObjectStore('history', { keyPath: 'videoId' });
-                            store.createIndex('timestamp', 'timestamp', { unique: false });
-                        }
-                    };
-                });
-            },
-            addHistory(track) {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction('history', 'readwrite');
-                    tx.onerror = (e) => reject(e.target.error);
-                    tx.oncomplete = () => resolve();
-                    const store = tx.objectStore('history');
-                    store.put({ ...track, timestamp: Date.now() });
-                    const index = store.index('timestamp');
-                    index.count().onsuccess = (e) => {
-                        if (e.target.result > MAX_HISTORY_SIZE) {
-                            index.openCursor().onsuccess = (e) => {
-                                const cursor = e.target.result;
-                                if (cursor) store.delete(cursor.primaryKey);
-                            };
-                        }
-                    };
-                });
-            },
-            getHistory() {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction('history', 'readonly');
-                    const store = tx.objectStore('history');
-                    const index = store.index('timestamp');
-                    const request = index.getAll();
-                    request.onerror = (e) => reject(e.target.error);
-                    request.onsuccess = () => resolve(request.result.sort((a, b) => b.timestamp - a.timestamp));
-                });
-            },
-        };
-
-        // --- YOUTUBE API ---
-        const API = {
-            async fetch(endpoint, params) {
-                if (API_KEY.includes('YOUR_YOUTUBE_API_KEY')) {
-                    console.error("API Key is not set.");
-                    throw new Error("API Key not configured.");
+            // --- DOM ELEMENTS ---
+            const dom = {
+                header: document.getElementById('header'), headerTitle: document.getElementById('header-title'),
+                searchContainer: document.getElementById('search-container'), searchInput: document.getElementById('search-input'),
+                searchResultsLabel: document.getElementById('search-results-label'),
+                contentArea: document.getElementById('content-area'), loader: document.getElementById('loader'),
+                mainContent: document.getElementById('main-content'), miniPlayer: document.getElementById('mini-player'),
+                miniPlayerClickArea: document.getElementById('mini-player-click-area'), miniPlayerThumbnail: document.getElementById('mini-player-thumbnail'),
+                miniPlayerTitle: document.getElementById('mini-player-title'), miniPlayPauseBtn: document.getElementById('mini-play-pause-btn'),
+                fullPlayer: document.getElementById('full-player'), playerBg: document.getElementById('player-bg'),
+                playerCarousel: document.getElementById('player-carousel'),
+                dismissHandle: document.getElementById('dismiss-handle'),
+                tabs: {
+                    home: document.getElementById('home-tab'), browse: document.getElementById('browse-tab'), library: document.getElementById('library-tab')
                 }
-                const url = new URL(`https://www.googleapis.com/youtube/v3/${endpoint}`);
-                url.searchParams.append('key', API_KEY);
-                for (const key in params) url.searchParams.append(key, params[key]);
-                const response = await fetch(url);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    const message = errorData.error?.message || `API Error (${response.status})`;
-                    console.error(message);
-                    throw new Error(message);
-                }
-                return await response.json();
-            },
-            search(query, type = 'video,playlist') {
-                const params = { part: 'snippet', q: query, type: type, maxResults: 25 };
-                if (type === 'video') params.videoCategoryId = '10';
-                return this.fetch('search', params);
-            },
-            getTopHits() {
-                return this.fetch('videos', { part: 'snippet', chart: 'mostPopular', regionCode: 'US', videoCategoryId: '10', maxResults: 20 });
-            },
-            getRelated(videoId) {
-                return this.fetch('search', { part: 'snippet', relatedToVideoId: videoId, type: 'video', maxResults: 15, videoCategoryId: '10' });
-            },
-            getPlaylistItems(playlistId) {
-                return this.fetch('playlistItems', { part: 'snippet', playlistId: playlistId, maxResults: 50 });
-            }
-        };
+            };
 
-        // --- PLAYER LOGIC ---
-        const Player = {
-            init() {
-                const tag = document.createElement('script');
-                tag.src = "https://www.youtube.com/iframe_api";
-                document.head.appendChild(tag);
-                window.onYouTubeIframeAPIReady = () => {
-                    ytPlayer = new YT.Player('youtube-player', {
-                        height: '360', width: '640',
-                        playerVars: { 'playsinline': 1, 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'fs': 0, 'iv_load_policy': 3, 'modestbranding': 1, 'rel': 0 },
-                        events: { 'onStateChange': this.onStateChange }
+            // --- DATABASE (IndexedDB) ---
+            const DB = {
+                db: null,
+                init() {
+                    return new Promise((resolve, reject) => {
+                        const request = indexedDB.open('ICON_DB_V2', 2);
+                        request.onerror = (e) => reject("IndexedDB error: " + e.target.errorCode);
+                        request.onsuccess = (e) => { this.db = e.target.result; resolve(); };
+                        request.onupgradeneeded = (e) => {
+                            const db = e.target.result;
+                            if (!db.objectStoreNames.contains('history')) {
+                                const store = db.createObjectStore('history', { keyPath: 'videoId' });
+                                store.createIndex('timestamp', 'timestamp', { unique: false });
+                            }
+                        };
                     });
-                };
-            },
-            onStateChange(event) {
-                state.isPlaying = event.data === YT.PlayerState.PLAYING;
-                UI.updateAllPlayPauseIcons(state.isPlaying);
-                if (event.data === YT.PlayerState.PLAYING) {
-                    Player.startProgressInterval();
-                    const duration = ytPlayer.getDuration();
-                    const totalDurationEl = document.querySelector(`#player-page-${state.queueIndex} #total-duration`);
-                    if (totalDurationEl) totalDurationEl.textContent = UI.formatTime(duration);
-                    const progressBar = document.querySelector(`#player-page-${state.queueIndex} #progress-bar`);
-                    if (progressBar) progressBar.max = duration;
-                } else {
-                    clearInterval(playerStateInterval);
-                }
-                if (event.data === YT.PlayerState.ENDED) Player.next();
-            },
-            async playTrack(track, contextQueue = null) {
-                const validQueue = (contextQueue || [track]).filter(t => t && t.videoId);
-                const newIndex = validQueue.findIndex(t => t.videoId === track.videoId);
-                
-                state.queue = validQueue;
-                state.queueIndex = newIndex > -1 ? newIndex : 0;
-                
-                UI.buildPlayerCarousel();
-                this.playCurrentIndex();
-                await this.populateQueueIfNeeded(track);
-            },
-            playCurrentIndex() {
-                if (state.queueIndex < 0 || state.queueIndex >= state.queue.length) return;
-                const track = state.queue[state.queueIndex];
-                state.currentTrack = track;
-                ytPlayer.loadVideoById(track.videoId);
-                DB.addHistory(track).catch(console.error);
-                UI.updatePlayerUI(track);
-                UI.showMiniPlayer();
-            },
-            async populateQueueIfNeeded(track) {
-                if (state.queue.length > 1) return;
-                try {
-                    const relatedData = await API.getRelated(track.videoId);
-                    const relatedTracks = relatedData?.items?.map(UI.formatItem).filter(Boolean) || [];
-                    state.queue = [track, ...relatedTracks];
-                    UI.buildPlayerCarousel();
-                } catch (error) { console.warn("Could not fetch related videos for initial queue."); }
-            },
-            async expandQueue() {
-                if (isExpandingQueue || state.queue.length === 0) return;
-                isExpandingQueue = true;
-                const seedVideoId = state.queue[state.queue.length - 1].videoId;
-                try {
-                    const relatedData = await API.getRelated(seedVideoId);
-                    const newTracks = relatedData?.items?.map(UI.formatItem).filter(Boolean);
-                    if (newTracks && newTracks.length > 0) {
-                        state.queue.push(...newTracks);
-                        UI.appendPlayerPages(newTracks);
-                    }
-                } catch (error) { console.error("Failed to expand queue:", error); }
-                finally { isExpandingQueue = false; }
-            },
-            togglePlayPause() { if (!state.currentTrack) return; state.isPlaying ? ytPlayer.pauseVideo() : ytPlayer.playVideo(); },
-            next() { this.navigateToIndex(state.queueIndex + 1); },
-            previous() { this.navigateToIndex(state.queueIndex - 1); },
-            navigateToIndex(index) {
-                if (isAnimatingScroll || index < 0 || index >= state.queue.length) return;
-                isAnimatingScroll = true;
-                
-                if (dom.playerPagesContainer) {
-                    dom.playerPagesContainer.style.transform = `translateY(-${index * 100}vh)`;
-                }
+                },
+                addHistory(track) {
+                    return new Promise((resolve, reject) => {
+                        const tx = this.db.transaction('history', 'readwrite');
+                        tx.onerror = (e) => reject(e.target.error);
+                        tx.oncomplete = () => resolve();
+                        const store = tx.objectStore('history');
+                        store.put({ ...track, timestamp: Date.now() });
+                        const index = store.index('timestamp');
+                        index.count().onsuccess = (e) => {
+                            if (e.target.result > MAX_HISTORY_SIZE) {
+                                index.openCursor().onsuccess = (e) => {
+                                    const cursor = e.target.result;
+                                    if (cursor) store.delete(cursor.primaryKey);
+                                };
+                            }
+                        };
+                    });
+                },
+                getHistory() {
+                    return new Promise((resolve, reject) => {
+                        const tx = this.db.transaction('history', 'readonly');
+                        const store = tx.objectStore('history');
+                        const index = store.index('timestamp');
+                        const request = index.getAll();
+                        request.onerror = (e) => reject(e.target.error);
+                        request.onsuccess = () => resolve(request.result.sort((a, b) => b.timestamp - a.timestamp));
+                    });
+                },
+            };
 
-                state.queueIndex = index;
-                this.playCurrentIndex();
-                if (state.queueIndex >= state.queue.length - 3) this.expandQueue();
-                setTimeout(() => { isAnimatingScroll = false; }, 450);
-            },
-            startProgressInterval() {
-                clearInterval(playerStateInterval);
-                playerStateInterval = setInterval(() => {
-                    if (!isSeeking && ytPlayer.getDuration) {
-                        const currentTime = ytPlayer.getCurrentTime();
+            // --- YOUTUBE API ---
+            const API = {
+                async fetch(endpoint, params) {
+                    if (API_KEY.includes('YOUR_YOUTUBE_API_KEY')) {
+                        console.error("API Key is not set."); throw new Error("API Key not configured.");
+                    }
+                    const url = new URL(`https://www.googleapis.com/youtube/v3/${endpoint}`);
+                    url.searchParams.append('key', API_KEY);
+                    for (const key in params) url.searchParams.append(key, params[key]);
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        const message = errorData.error?.message || `API Error (${response.status})`;
+                        console.error(message); throw new Error(message);
+                    }
+                    return await response.json();
+                },
+                search(query) {
+                    const params = {
+                        part: 'snippet', q: query, type: 'video', videoCategoryId: '10', maxResults: 25
+                    };
+                    return this.fetch('search', params);
+                },
+                getTopHits() {
+                    return this.fetch('videos', { part: 'snippet', chart: 'mostPopular', regionCode: 'US', videoCategoryId: '10', maxResults: 20 });
+                },
+                getRelated(videoId) {
+                    return this.fetch('search', { part: 'snippet', relatedToVideoId: videoId, type: 'video', maxResults: 15, videoCategoryId: '10' });
+                },
+                getPlaylistItems(playlistId) {
+                    return this.fetch('playlistItems', { part: 'snippet', playlistId: playlistId, maxResults: 50 });
+                }
+            };
+
+            // --- PLAYER LOGIC ---
+            const Player = {
+                init() {
+                    const tag = document.createElement('script');
+                    tag.src = "https://www.youtube.com/iframe_api";
+                    document.head.appendChild(tag);
+                    window.onYouTubeIframeAPIReady = () => {
+                        ytPlayer = new YT.Player('youtube-player', {
+                            height: '360', width: '640',
+                            playerVars: { 'playsinline': 1, 'autoplay': 1, 'controls': 0, 'disablekb': 1, 'fs': 0, 'iv_load_policy': 3, 'modestbranding': 1, 'rel': 0 },
+                            events: { 'onStateChange': this.onStateChange }
+                        });
+                    };
+                },
+                onStateChange(event) {
+                    state.isPlaying = event.data === YT.PlayerState.PLAYING;
+                    UI.updateAllPlayPauseIcons(state.isPlaying);
+                    if (event.data === YT.PlayerState.PLAYING) {
+                        Player.startProgressInterval();
                         const duration = ytPlayer.getDuration();
-                        const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-
-                        const miniProgress = document.getElementById('mini-player-progress');
-                        if (miniProgress) miniProgress.style.width = `${progressPercent}%`;
-
-                        const currentPage = document.querySelector(`#player-page-${state.queueIndex}`);
-                        if (currentPage) {
-                            const progressBar = currentPage.querySelector('#progress-bar');
-                            const currentTimeEl = currentPage.querySelector('#current-time');
-                            progressBar.value = currentTime;
-                            currentTimeEl.textContent = UI.formatTime(currentTime);
-                            progressBar.style.setProperty('--progress', `${progressPercent}%`);
+                        const totalDurationEl = document.querySelector(`#player-page-${state.queueIndex} #total-duration`);
+                        if (totalDurationEl) totalDurationEl.textContent = UI.formatTime(duration);
+                        const progressBar = document.querySelector(`#player-page-${state.queueIndex} #progress-bar`);
+                        if (progressBar) progressBar.max = duration;
+                    } else {
+                        clearInterval(playerStateInterval);
+                    }
+                    if (event.data === YT.PlayerState.ENDED) Player.next();
+                },
+                async playTrack(track, contextQueue = null) {
+                    const validQueue = (contextQueue || [track]).filter(t => t && t.videoId);
+                    const newIndex = validQueue.findIndex(t => t.videoId === track.videoId);
+                    state.queue = validQueue;
+                    state.queueIndex = newIndex > -1 ? newIndex: 0;
+                    UI.buildPlayerCarousel();
+                    this.playCurrentIndex();
+                    await this.populateQueueIfNeeded(track);
+                },
+                playCurrentIndex() {
+                    if (state.queueIndex < 0 || state.queueIndex >= state.queue.length) return;
+                    const track = state.queue[state.queueIndex];
+                    state.currentTrack = track;
+                    ytPlayer.loadVideoById(track.videoId);
+                    DB.addHistory(track).catch(console.error);
+                    UI.updatePlayerUI(track);
+                    UI.showMiniPlayer();
+                },
+                async populateQueueIfNeeded(track) {
+                    if (state.queue.length > 1) return;
+                    try {
+                        const relatedData = await API.getRelated(track.videoId);
+                        const relatedTracks = relatedData?.items?.map(UI.formatItem).filter(Boolean) || [];
+                        state.queue = [track, ...relatedTracks];
+                        UI.buildPlayerCarousel();
+                    } catch (error) { console.warn("Could not fetch related videos for initial queue."); }
+                },
+                async expandQueue() {
+                    if (isExpandingQueue || state.queue.length === 0) return;
+                    isExpandingQueue = true;
+                    const seedVideoId = state.queue[state.queue.length - 1].videoId;
+                    try {
+                        const relatedData = await API.getRelated(seedVideoId);
+                        const newTracks = relatedData?.items?.map(UI.formatItem).filter(Boolean);
+                        if (newTracks && newTracks.length > 0) {
+                            state.queue.push(...newTracks);
+                            UI.appendPlayerPages(newTracks);
                         }
-                    }
-                }, 250);
-            }
-        };
-
-        // --- UI & RENDERING ---
-        const UI = {
-            showLoader() { dom.loader.classList.remove('hidden'); dom.contentArea.innerHTML = ''; },
-            hideLoader() { dom.loader.classList.add('hidden'); },
-            formatTime(seconds) { const min = Math.floor(seconds / 60); const sec = Math.floor(seconds % 60).toString().padStart(2, '0'); return `${min}:${sec}`; },
-            formatItem(item) {
-                if (!item || !item.snippet) return null;
-                const isPlaylist = item.id?.kind === 'youtube#playlist';
-                const id = isPlaylist ? item.id.playlistId : (item.id?.videoId || item.id);
-                if (!id) return null;
-                return {
-                    id, videoId: isPlaylist ? null : id, playlistId: isPlaylist ? id : null,
-                    title: item.snippet.title, channel: item.snippet.channelTitle,
-                    thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url, isPlaylist
-                };
-            },
-            createItemCard(itemData) {
-                if (!itemData || !itemData.thumbnail) return '';
-                return `<div class="item-card flex items-center gap-4 p-2 rounded-lg hover:bg-bg-tertiary cursor-pointer transition-all duration-200 hover:scale-[1.02]" data-item='${JSON.stringify(itemData)}'><img src="${itemData.thumbnail}" class="w-20 h-20 rounded-md object-cover flex-shrink-0" loading="lazy"><div class="flex-1 overflow-hidden"><p class="font-semibold truncate text-text-primary">${itemData.title}</p><p class="text-text-secondary text-sm truncate">${itemData.channel}</p></div>${itemData.isPlaylist ? `<i data-lucide="list-music" class="w-5 h-5 text-accent flex-shrink-0"></i>` : ''}</div>`;
-            },
-            renderSection(title, items, cardRenderer) {
-                if (!items || items.length === 0) return '';
-                const validItems = items.filter(Boolean);
-                const itemsHtml = validItems.map(cardRenderer).join('');
-                return `<div class="mb-8" data-context-queue='${JSON.stringify(validItems)}'><h2 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-neutral-200 to-neutral-500 mb-4">${title}</h2><div class="space-y-2">${itemsHtml}</div></div>`;
-            },
-            buildPlayerCarousel() {
-                const pagesHtml = state.queue.map(this.createPlayerPage).join('');
-                dom.playerCarousel.innerHTML = `<div id="player-pages-container" class="h-full w-full" style="transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(-${state.queueIndex * 100}vh);">${pagesHtml}</div>`;
-                dom.playerPagesContainer = document.getElementById('player-pages-container');
-                lucide.createIcons();
-            },
-            appendPlayerPages(tracks) {
-                if (!dom.playerPagesContainer) return;
-                const startingIndex = state.queue.length - tracks.length;
-                const newPagesHtml = tracks.map((track, i) => this.createPlayerPage(track, startingIndex + i)).join('');
-                dom.playerPagesContainer.insertAdjacentHTML('beforeend', newPagesHtml);
-                lucide.createIcons();
-            },
-            createPlayerPage(track, index) {
-                return `
-                    <div id="player-page-${index}" class="w-full h-full flex-shrink-0 relative flex flex-col justify-between p-6 pt-20 pb-28">
-                        <div class="flex-shrink-0"></div>
-                        <div class="flex flex-col items-center">
-                            <img src="${track.thumbnail}" class="w-full max-w-xs aspect-square rounded-xl shadow-2xl mb-8" style="transform: perspective(1000px) rotateY(5deg); box-shadow: -10px 10px 30px rgba(0,0,0,0.4);">
-                            <div class="text-center w-full px-4">
-                                <h2 class="text-2xl font-bold">${track.title}</h2>
-                                <p class="text-lg text-text-secondary mt-1">${track.channel}</p>
-                            </div>
-                        </div>
-                        <div class="w-full">
-                            <div class="w-full mt-8">
-                                <input id="progress-bar" type="range" min="0" max="100" value="0" style="--progress: 0%;">
-                                <div class="flex justify-between text-xs text-text-secondary mt-1">
-                                    <span id="current-time">0:00</span>
-                                    <span id="total-duration">0:00</span>
-                                </div>
-                            </div>
-                            <div class="flex justify-center items-center gap-8 mt-6">
-                                <button class="prev-btn text-text-secondary active:scale-90 transition-transform"><i data-lucide="skip-back" class="w-8 h-8"></i></button>
-                                <button class="play-pause-btn p-5 bg-white rounded-full text-black active:scale-90 transition-transform shadow-lg"></button>
-                                <button class="next-btn text-text-secondary active:scale-90 transition-transform"><i data-lucide="skip-forward" class="w-8 h-8"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            },
-            updatePlayerUI(track) {
-                dom.miniPlayerThumbnail.src = track.thumbnail;
-                dom.miniPlayerTitle.textContent = track.title;
-                dom.playerBg.style.background = `linear-gradient(to bottom, rgba(30,30,30,0.8), #121212 50%), url(${track.thumbnail})`;
-                dom.playerBg.style.backgroundSize = 'cover'; dom.playerBg.style.backgroundPosition = 'center';
-                dom.playerBg.style.filter = 'blur(80px) brightness(0.8)';
-            },
-            updateAllPlayPauseIcons(isPlaying) {
-                const playIcon = `<i data-lucide="play" class="w-6 h-6"></i>`; const pauseIcon = `<i data-lucide="pause" class="w-6 h-6"></i>`;
-                const largePlayIcon = `<i data-lucide="play" class="w-10 h-10 fill-black ml-1"></i>`; const largePauseIcon = `<i data-lucide="pause" class="w-10 h-10 fill-black"></i>`;
-                dom.miniPlayPauseBtn.innerHTML = isPlaying ? pauseIcon : playIcon;
-                document.querySelectorAll('.play-pause-btn').forEach(btn => {
-                    btn.innerHTML = isPlaying ? largePauseIcon : largePlayIcon;
-                });
-                lucide.createIcons();
-            },
-            showMiniPlayer() { dom.miniPlayer.classList.remove('opacity-0', 'translate-y-full', 'pointer-events-none'); dom.mainContent.style.paddingBottom = '160px'; },
-            showFullPlayer() { dom.fullPlayer.classList.remove('opacity-0', 'translate-y-full', 'scale-95', 'pointer-events-none'); },
-            hideFullPlayer() { dom.fullPlayer.classList.add('opacity-0', 'translate-y-full', 'scale-95', 'pointer-events-none'); },
-            setActiveTab(activeTab) {
-                document.querySelectorAll('#main-nav .tab-item, #player-nav .tab-item').forEach(tab => {
-                    tab.classList.remove('active');
-                    tab.classList.add('text-text-secondary');
-                });
-                const mainTab = document.getElementById(activeTab.id);
-                const playerTab = document.querySelector(`#player-nav [data-target-tab="${activeTab.id}"]`);
-                if(mainTab) { mainTab.classList.add('active'); mainTab.classList.remove('text-text-secondary'); }
-                if(playerTab) { playerTab.classList.add('active'); playerTab.classList.remove('text-text-secondary'); }
-            },
-            updateHeader(title, showSearch = false, showBack = false) {
-                dom.headerTitle.textContent = title; dom.searchContainer.style.display = showSearch ? 'block' : 'none';
-                dom.backButton.style.display = showBack ? 'block' : 'none'; dom.headerTitle.style.textAlign = showBack ? 'center' : 'left';
-                dom.headerTitle.style.flexGrow = showBack ? '1' : '0';
-            },
-            async renderHomeView() { /* ... defined below ... */ },
-            async renderBrowseView(query) { /* ... defined below ... */ },
-            async renderLibraryView() { /* ... defined below ... */ },
-            async renderPlaylistView(playlistData) { /* ... defined below ... */ },
-        };
-        
-        // --- EVENT LISTENERS ---
-        function setupEventListeners() {
-            const debounce = (func, delay) => { let timeout; return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); }; };
-            dom.searchInput.addEventListener('input', debounce(e => { const query = e.target.value.trim(); if (query.length > 2) UI.renderBrowseView(query); }, 500));
-            
-            dom.contentArea.addEventListener('click', e => {
-                const card = e.target.closest('[data-item]');
-                if (!card) return;
-
-                try {
-                    const itemData = JSON.parse(card.dataset.item);
-
-                    if (itemData.isPlaylist) {
-                        UI.updateHeader(itemData.title, false, true);
-                        UI.renderPlaylistView(itemData);
-                        return;
-                    }
-
-                    if (itemData.videoId) {
-                        let contextQueue = null;
-                        const contextContainer = card.closest('[data-context-queue]');
-
-                        if (contextContainer) {
-                            try {
-                                const fullQueue = JSON.parse(contextContainer.dataset.contextQueue);
-                                if (Array.isArray(fullQueue) && fullQueue.length > 0) {
-                                    contextQueue = fullQueue;
-                                }
-                            } catch (queueError) {
-                                console.warn("Could not parse context queue. Playing single track.", queueError);
+                    } catch (error) { console.error("Failed to expand queue:", error); }
+                    finally { isExpandingQueue = false; }
+                },
+                togglePlayPause() { if (!state.currentTrack) return; state.isPlaying ? ytPlayer.pauseVideo(): ytPlayer.playVideo(); },
+                next() { this.navigateToIndex(state.queueIndex + 1); },
+                previous() { this.navigateToIndex(state.queueIndex - 1); },
+                playIndex(index) {
+                    if (index < 0 || index >= state.queue.length || state.queueIndex === index) return;
+                    state.queueIndex = index;
+                    this.playCurrentIndex();
+                    if (state.queueIndex >= state.queue.length - 3) { this.expandQueue(); }
+                },
+                navigateToIndex(index) {
+                    if (index < 0 || index >= state.queue.length || state.queueIndex === index) return;
+                    const targetScrollTop = index * dom.playerCarousel.clientHeight;
+                    dom.playerCarousel.scrollTo({ top: targetScrollTop, behavior: 'smooth' });
+                    this.playIndex(index);
+                },
+                startProgressInterval() {
+                    clearInterval(playerStateInterval);
+                    playerStateInterval = setInterval(() => {
+                        if (!isSeeking && ytPlayer.getDuration) {
+                            const currentTime = ytPlayer.getCurrentTime();
+                            const duration = ytPlayer.getDuration();
+                            const progressPercent = duration > 0 ? (currentTime / duration) * 100: 0;
+                            const miniProgress = document.getElementById('mini-player-progress');
+                            if (miniProgress) miniProgress.style.width = `${progressPercent}%`;
+                            const currentPage = document.querySelector(`#player-page-${state.queueIndex}`);
+                            if (currentPage) {
+                                const progressBar = currentPage.querySelector('#progress-bar');
+                                const currentTimeEl = currentPage.querySelector('#current-time');
+                                progressBar.value = currentTime;
+                                currentTimeEl.textContent = UI.formatTime(currentTime);
+                                progressBar.style.setProperty('--progress', `${progressPercent}%`);
                             }
                         }
-                        
-                        Player.playTrack(itemData, contextQueue);
+                    }, 250);
+                }
+            };
+
+            // --- UI & RENDERING ---
+            const UI = {
+                showLoader() { dom.loader.classList.remove('hidden'); dom.contentArea.innerHTML = ''; },
+                hideLoader() { dom.loader.classList.add('hidden'); },
+                formatTime(seconds) { const min = Math.floor(seconds / 60); const sec = Math.floor(seconds % 60).toString().padStart(2, '0'); return `${min}:${sec}`; },
+                formatItem(item) {
+                    if (!item || !item.snippet) return null;
+                    const isPlaylist = item.id?.kind === 'youtube#playlist';
+                    const id = isPlaylist ? item.id.playlistId: (item.id?.videoId || item.id);
+                    if (!id) return null;
+                    return { id, videoId: isPlaylist ? null: id, playlistId: isPlaylist ? id: null, title: item.snippet.title, channel: item.snippet.channelTitle, thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url, isPlaylist };
+                },
+                createHorizontalCard(itemData) {
+                    if (!itemData || !itemData.thumbnail) return '';
+                    const cardType = itemData.isPlaylist ? 'Playlist': itemData.channel;
+                    return `<div class="item-card w-40 flex-shrink-0" data-item='${JSON.stringify(itemData)}' style="animation-delay: ${Math.random() * 0.3}s"><div class="relative cursor-pointer group"><img src="${itemData.thumbnail}" class="w-40 h-40 rounded-lg object-cover shadow-lg transform transition-transform duration-300 group-hover:scale-105" loading="lazy">${itemData.isPlaylist ? `<div class="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm p-1 rounded-full"><i data-lucide="list-music" class="w-4 h-4 text-white"></i></div>`: ''}</div><div class="mt-2"><p class="font-semibold truncate text-text-primary text-sm">${itemData.title}</p><p class="text-text-secondary text-xs truncate">${cardType}</p></div></div>`;
+                },
+                createVerticalCard(itemData) {
+                    if (!itemData || !itemData.thumbnail) return '';
+                    return `<div class="item-card flex items-center gap-5 p-4 cursor-pointer transition-colors duration-200 hover:bg-bg-tertiary/50 border-b border-white/5" data-item='${JSON.stringify(itemData)}'><img src="${itemData.thumbnail}" class="w-16 h-16 rounded-md object-cover flex-shrink-0" loading="lazy"><div class="flex-1 overflow-hidden"><p class="font-semibold text-base text-text-primary line-clamp-2">${itemData.title}</p><p class="text-text-secondary text-sm truncate mt-1">${itemData.channel}</p></div>${itemData.isPlaylist ? `<i data-lucide="list-music" class="w-5 h-5 text-accent flex-shrink-0 ml-3"></i>`: ''}</div>`;
+                },
+                createLibraryGridCard(itemData) {
+                    if (!itemData || !itemData.thumbnail) return '';
+                    return `<div class="item-card" data-item='${JSON.stringify(itemData)}'><div class="flex items-center gap-3 bg-bg-tertiary/50 p-2 rounded-lg cursor-pointer hover:bg-bg-tertiary transition-colors"><img src="${itemData.thumbnail}" class="w-12 h-12 rounded-md object-cover flex-shrink-0" loading="lazy"><p class="flex-1 font-semibold text-sm line-clamp-2">${itemData.title}</p></div></div>`;
+                },
+                renderSection(title, items, cardRenderer) {
+                    if (!items || items.length === 0) return '';
+                    const validItems = items.filter(Boolean);
+                    const itemsHtml = validItems.map(cardRenderer).join('');
+                    const isHorizontal = cardRenderer === this.createHorizontalCard;
+                    if (isHorizontal) {
+                        return `<div class="mb-8" data-context-queue='${JSON.stringify(validItems)}'><h2 class="text-2xl font-bold mb-4 px-4 metallic-text">${title}</h2><div class="horizontal-scroll flex gap-4 overflow-x-auto pb-4 px-4">${itemsHtml}</div></div>`;
+                    } else {
+                        return `<div class="mb-8" data-context-queue='${JSON.stringify(validItems)}'><h2 class="text-2xl font-bold mb-4 px-4 metallic-text">${title}</h2><div>${itemsHtml}</div></div>`;
                     }
+                },
+                buildPlayerCarousel() {
+                    const pagesHtml = state.queue.map(this.createPlayerPage).join('');
+                    dom.playerCarousel.innerHTML = pagesHtml;
+                    const initialScrollTop = state.queueIndex * dom.playerCarousel.clientHeight;
+                    dom.playerCarousel.scrollTo({ top: initialScrollTop, behavior: 'instant' });
+                    this.updateAllPlayPauseIcons(state.isPlaying);
+                    this.observePlayerPages();
+                },
+                appendPlayerPages(tracks) {
+                    if (!dom.playerCarousel) return;
+                    const startingIndex = state.queue.length - tracks.length;
+                    const newPagesHtml = tracks.map((track, i) => this.createPlayerPage(track, startingIndex + i)).join('');
+                    const fragment = document.createRange().createContextualFragment(newPagesHtml);
+                    const newPageElements = Array.from(fragment.children);
+                    dom.playerCarousel.appendChild(fragment);
+                    this.updateAllPlayPauseIcons(state.isPlaying);
+                    if (playerObserver) { newPageElements.forEach(page => playerObserver.observe(page)); }
+                },
+                createPlayerPage(track, index) {
+                    return `<div id="player-page-${index}" class="player-page w-full h-full flex-shrink-0 relative flex flex-col p-6 pt-20 pb-12 overflow-hidden"><div class="flex-grow flex items-center justify-center"><div class="relative w-full max-w-xs player-album-art-container"><div class="absolute -inset-4 bg-cover bg-center rounded-full opacity-30 blur-2xl" style="background-image: url('${track.thumbnail}')"></div><img src="${track.thumbnail}" class="relative w-full aspect-square rounded-2xl shadow-2xl shadow-black/50 player-album-art"></div></div><div class="flex-shrink-0 mt-8"><div class="text-center w-full mb-6"><h2 class="text-2xl font-bold leading-tight metallic-text">${track.title}</h2><p class="text-lg text-text-secondary mt-1 opacity-80">${track.channel}</p></div><div class="w-full"><input id="progress-bar" type="range" min="0" max="100" value="0" style="--progress: 0%;"><div class="flex justify-between text-xs text-text-secondary mt-1"><span id="current-time">0:00</span><span id="total-duration">0:00</span></div></div><div class="flex items-center justify-around mt-6"><button class="shuffle-btn player-control-btn"><i data-lucide="shuffle" class="w-7 h-7"></i></button><button class="prev-btn player-control-btn"><i data-lucide="skip-back" class="w-8 h-8"></i></button><button class="play-pause-btn relative w-20 h-20 flex items-center justify-center bg-white text-bg-primary rounded-full shadow-lg active:scale-90 transition-transform"></button><button class="next-btn player-control-btn"><i data-lucide="skip-forward" class="w-8 h-8"></i></button><button class="repeat-btn player-control-btn"><i data-lucide="repeat" class="w-7 h-7"></i></button></div></div></div>`;
+                },
+                updatePlayerUI(track) {
+                    dom.miniPlayerThumbnail.src = track.thumbnail;
+                    dom.miniPlayerTitle.textContent = track.title;
+                    dom.playerBg.style.background = `linear-gradient(to bottom, rgba(0,0,0,0.8), #000000 60%), url(${track.thumbnail})`;
+                    dom.playerBg.style.backgroundSize = 'cover'; dom.playerBg.style.backgroundPosition = 'center';
+                    dom.playerBg.style.filter = 'blur(80px) brightness(0.6)';
+                },
+                updateAllPlayPauseIcons(isPlaying) {
+                    const playIcon = `<i data-lucide="play" class="w-6 h-6"></i>`; const pauseIcon = `<i data-lucide="pause" class="w-6 h-6"></i>`;
+                    const largePlayIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="currentColor" class="ml-1"><path d="M8 5.14v14l11-7-11-7z"></path></svg>`;
+                    const largePauseIcon = `<i data-lucide="pause" class="w-10 h-10 fill-current"></i>`;
+                    dom.miniPlayPauseBtn.innerHTML = isPlaying ? pauseIcon: playIcon;
+                    document.querySelectorAll('.play-pause-btn').forEach(btn => { btn.innerHTML = isPlaying ? largePauseIcon: largePlayIcon; });
+                    lucide.createIcons();
+                },
+                showMiniPlayer() { dom.miniPlayer.classList.remove('opacity-0', 'translate-y-full', 'pointer-events-none'); dom.mainContent.style.paddingBottom = '160px'; },
+                showFullPlayer() { dom.fullPlayer.classList.remove('opacity-0', 'translate-y-full', 'scale-95', 'pointer-events-none'); },
+                hideFullPlayer() { dom.fullPlayer.classList.add('opacity-0', 'translate-y-full', 'scale-95', 'pointer-events-none'); },
+                setActiveTab(activeTab) {
+                    document.querySelectorAll('#main-nav .tab-item').forEach(tab => { tab.classList.remove('active'); tab.classList.add('text-text-secondary'); });
+                    const mainTab = document.getElementById(activeTab.id);
+                    if (mainTab) { mainTab.classList.add('active'); mainTab.classList.remove('text-text-secondary'); }
+                },
+                updateHeader(title, showSearch = false) {
+                    dom.headerTitle.textContent = title;
+                    dom.searchContainer.style.display = showSearch ? 'block': 'none';
+                },
+                observePlayerPages() {
+                    if (playerObserver) playerObserver.disconnect();
+                    const options = { root: dom.playerCarousel, threshold: 0.6 };
+                    playerObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                const newIndex = parseInt(entry.target.id.split('-')[2]);
+                                Player.playIndex(newIndex);
+                            }
+                        });
+                    }, options);
+                    const pages = dom.playerCarousel.querySelectorAll('.player-page');
+                    pages.forEach(page => playerObserver.observe(page));
+                },
+                async renderHomeView() { /* ... defined below ... */ },
+                async renderBrowseView(query) { /* ... defined below ... */ },
+                async renderLibraryView() { /* ... defined below ... */ },
+                async renderPlaylistView(playlistData) { /* ... defined below ... */ },
+            };
 
-                } catch (err) {
-                    console.error("Failed to process click event:", err);
+            // --- EVENT LISTENERS ---
+            function setupEventListeners() {
+                dom.mainContent.addEventListener('scroll', () => { dom.header.classList.toggle('scrolled', dom.mainContent.scrollTop > 10); });
+                const debounce = (func, delay) => { let timeout; return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); }; };
+                dom.searchInput.addEventListener('input', debounce(e => { const query = e.target.value.trim(); UI.renderBrowseView(query); }, 500));
+                dom.contentArea.addEventListener('click', e => {
+                    const card = e.target.closest('[data-item]');
+                    const genreCard = e.target.closest('[data-search-term]');
+                    const historyCard = e.target.closest('#heavy-rotation-card');
+                    if (genreCard) { const term = genreCard.dataset.searchTerm; dom.tabs.browse.click(); dom.searchInput.value = term; UI.renderBrowseView(term); return; }
+                    if (historyCard) { dom.tabs.library.click(); return; }
+                    if (!card) return;
+                    try {
+                        const itemData = JSON.parse(card.dataset.item);
+                        if (itemData.isPlaylist) { UI.renderPlaylistView(itemData); return; }
+                        if (itemData.videoId) {
+                            let contextQueue = null;
+                            const contextContainer = card.closest('[data-context-queue]');
+                            if (contextContainer) { try { contextQueue = JSON.parse(contextContainer.dataset.contextQueue); } catch (queueError) { console.warn("Could not parse context queue.", queueError); } }
+                            Player.playTrack(itemData, contextQueue);
+                        }
+                    } catch (err) { console.error("Failed to process click event:", err); }
+                });
+                dom.miniPlayPauseBtn.addEventListener('click', e => { e.stopPropagation(); Player.togglePlayPause(); });
+                dom.miniPlayerClickArea.addEventListener('click', UI.showFullPlayer);
+                dom.playerCarousel.addEventListener('click', e => {
+                    if (e.target.closest('.play-pause-btn')) Player.togglePlayPause();
+                    if (e.target.closest('.next-btn')) Player.next();
+                    if (e.target.closest('.prev-btn')) Player.previous();
+                    if (e.target.closest('.shuffle-btn')) e.target.closest('.shuffle-btn').classList.toggle('active');
+                    if (e.target.closest('.repeat-btn')) e.target.closest('.repeat-btn').classList.toggle('active');
+                });
+                dom.playerCarousel.addEventListener('input', e => { if (e.target.matches('#progress-bar')) { isSeeking = true; ytPlayer.seekTo(e.target.value, true); } });
+                dom.playerCarousel.addEventListener('change', e => { if (e.target.matches('#progress-bar')) isSeeking = false; });
+                let touchStart = { x: 0, y: 0 }; let isDraggingHorizontally = false;
+                dom.playerCarousel.addEventListener('touchstart', e => { touchStart.x = e.touches[0].clientX; touchStart.y = e.touches[0].clientY; isDraggingHorizontally = false; }, { passive: true });
+                dom.playerCarousel.addEventListener('touchmove', e => {
+                    const deltaX = e.touches[0].clientX - touchStart.x; const deltaY = e.touches[0].clientY - touchStart.y;
+                    if (!isDraggingHorizontally && Math.abs(deltaX) > Math.abs(deltaY) + 5) { isDraggingHorizontally = true; }
+                    if (isDraggingHorizontally) {
+                        e.preventDefault(); dom.fullPlayer.style.transition = 'none';
+                        dom.fullPlayer.style.transform = `translateX(${deltaX}px)`;
+                        dom.fullPlayer.style.opacity = 1 - Math.abs(deltaX) / window.innerWidth;
+                    }
+                }, { passive: false });
+                dom.playerCarousel.addEventListener('touchend', e => {
+                    if (isDraggingHorizontally) {
+                        const deltaX = e.changedTouches[0].clientX - touchStart.x;
+                        dom.fullPlayer.style.transition = '';
+                        if (Math.abs(deltaX) > 100) { UI.hideFullPlayer(); }
+                        setTimeout(() => { dom.fullPlayer.style.transform = ''; dom.fullPlayer.style.opacity = ''; }, 300);
+                    }
+                    isDraggingHorizontally = false;
+                }, { passive: true });
+                let handleTouchStartY = 0;
+                dom.dismissHandle.addEventListener('touchstart', e => { handleTouchStartY = e.touches[0].clientY; }, { passive: true });
+                dom.dismissHandle.addEventListener('touchmove', e => {
+                    const deltaY = e.touches[0].clientY - handleTouchStartY;
+                    if (deltaY > 0) {
+                        dom.fullPlayer.style.transition = 'none';
+                        dom.fullPlayer.style.transform = `translateY(${deltaY}px) scale(${1 - deltaY / 5000})`;
+                    }
+                }, { passive: true });
+                dom.dismissHandle.addEventListener('touchend', () => {
+                    const transformY = new DOMMatrix(getComputedStyle(dom.fullPlayer).transform).m42;
+                    dom.fullPlayer.style.transition = '';
+                    if (transformY > 100) UI.hideFullPlayer();
+                    dom.fullPlayer.style.transform = '';
+                });
+                Object.values(dom.tabs).forEach(tab => tab.addEventListener('click', () => {
+                    UI.setActiveTab(tab); dom.mainContent.style.paddingTop = '';
+                    const tabId = tab.id;
+                    if (tabId === 'home-tab') { UI.updateHeader('Home'); UI.renderHomeView(); } 
+                    else if (tabId === 'browse-tab') { UI.updateHeader('Browse', true); UI.renderBrowseView(dom.searchInput.value); } 
+                    else if (tabId === 'library-tab') { UI.updateHeader('Library'); UI.renderLibraryView(); }
+                }));
+            };
+
+            // --- INITIALIZATION ---
+            async function main() {
+                lucide.createIcons(); UI.updateAllPlayPauseIcons(false);
+                try {
+                    await DB.init(); Player.init(); setupEventListeners(); UI.renderHomeView();
+                } catch (error) {
+                    console.error("Initialization failed:", error);
+                    dom.contentArea.innerHTML = `<p class="text-red-500 text-center py-10 px-4">A critical error occurred. Please check your API Key and refresh the page.</p>`;
                 }
-            });
-
-            dom.backButton.addEventListener('click', () => { dom.tabs.browse.click(); });
-            dom.miniPlayPauseBtn.addEventListener('click', e => { e.stopPropagation(); Player.togglePlayPause(); });
-            dom.miniPlayerClickArea.addEventListener('click', UI.showFullPlayer);
-            
-            dom.playerCarousel.addEventListener('click', e => {
-                if (e.target.closest('.play-pause-btn')) Player.togglePlayPause();
-                if (e.target.closest('.next-btn')) Player.next();
-                if (e.target.closest('.prev-btn')) Player.previous();
-            });
-            dom.playerCarousel.addEventListener('input', e => { if (e.target.matches('#progress-bar')) { isSeeking = true; ytPlayer.seekTo(e.target.value, true); } });
-            dom.playerCarousel.addEventListener('change', e => { if (e.target.matches('#progress-bar')) isSeeking = false; });
-
-            let touchStartY = 0;
-            dom.playerCarousel.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
-            dom.playerCarousel.addEventListener('touchend', e => {
-                const touchEndY = e.changedTouches[0].clientY;
-                const deltaY = touchStartY - touchEndY;
-                if (Math.abs(deltaY) > 50) { if (deltaY > 0) Player.next(); else Player.previous(); }
-            }, { passive: true });
-            dom.playerCarousel.addEventListener('wheel', e => { e.preventDefault(); if (e.deltaY > 0) Player.next(); else Player.previous(); }, { passive: false });
-
-            let handleTouchStartY = 0;
-            dom.dismissHandle.addEventListener('touchstart', e => { handleTouchStartY = e.touches[0].clientY; }, { passive: true });
-            dom.dismissHandle.addEventListener('touchmove', e => {
-                const deltaY = e.touches[0].clientY - handleTouchStartY;
-                if (deltaY > 0) {
-                    dom.fullPlayer.style.transition = 'none';
-                    dom.fullPlayer.style.transform = `translateY(${deltaY}px) scale(${1 - deltaY / 5000})`;
-                }
-            }, { passive: true });
-            dom.dismissHandle.addEventListener('touchend', () => {
-                const transformY = new DOMMatrix(getComputedStyle(dom.fullPlayer).transform).m42;
-                dom.fullPlayer.style.transition = '';
-                if (transformY > 100) UI.hideFullPlayer();
-                dom.fullPlayer.style.transform = '';
-            });
-
-            Object.values(dom.tabs).forEach(tab => tab.addEventListener('click', () => {
-                UI.setActiveTab(tab);
-                const tabId = tab.id;
-                if (tabId === 'home-tab') { UI.updateHeader('Home'); UI.renderHomeView(); }
-                else if (tabId === 'browse-tab') {
-                    UI.updateHeader('Browse', true);
-                    if (!dom.searchInput.value) { dom.contentArea.innerHTML = `<p class="text-text-secondary text-center py-10">Search for your favorite music.</p>`; } 
-                    else { UI.renderBrowseView(dom.searchInput.value); }
-                }
-                else if (tabId === 'library-tab') { UI.updateHeader('Library'); UI.renderLibraryView(); }
-            }));
-            
-            dom.playerNav.addEventListener('click', e => {
-                const targetTabBtn = e.target.closest('.tab-item');
-                if (!targetTabBtn) return;
-                const targetTabId = targetTabBtn.dataset.targetTab;
-                UI.hideFullPlayer();
-                dom.fullPlayer.addEventListener('transitionend', () => {
-                    document.getElementById(targetTabId).click();
-                }, { once: true });
-            });
-        };
-
-        // --- INITIALIZATION ---
-        async function main() {
-            lucide.createIcons();
-            UI.updateAllPlayPauseIcons(false);
-            try {
-                await DB.init();
-                Player.init();
-                setupEventListeners();
-                UI.renderHomeView();
-            } catch (error) {
-                console.error("Initialization failed:", error);
-                dom.contentArea.innerHTML = `<p class="text-red-500 text-center py-10">A critical error occurred. Please refresh the page.</p>`;
             }
-        }
-        
-        UI.renderHomeView = async function() {
-            this.showLoader();
-            let topHitsData;
-            try { topHitsData = await API.getTopHits(); } catch (error) {
-                console.warn("Primary API (chart) failed, trying fallback search...");
-                try { topHitsData = await API.search("Top Music Hits", "video"); } catch (fallbackError) { console.error("Fallback API search also failed:", fallbackError); }
-            }
-            const results = await Promise.allSettled([Promise.resolve(topHitsData), DB.getHistory()]);
-            const [topHitsResult, historyResult] = results;
-            let content = ``;
-            if (topHitsResult.status === 'fulfilled' && topHitsResult.value?.items) { content += this.renderSection("Top Hits", topHitsResult.value.items.map(this.formatItem), this.createItemCard); }
-            else { content += `<p class="text-text-secondary mb-8">Could not load Top Hits.</p>`; }
-            if (historyResult.status === 'fulfilled' && historyResult.value.length > 0) { content += this.renderSection("Recently Played", historyResult.value.slice(0, 5), this.createItemCard); }
-            dom.contentArea.innerHTML = content; this.hideLoader(); lucide.createIcons();
-        };
-        UI.renderBrowseView = async function(query) {
-            this.showLoader();
-            try {
-                const data = await API.search(query);
-                const results = data?.items?.map(this.formatItem).filter(Boolean) || [];
-                dom.contentArea.innerHTML = this.renderSection(`Results for "${query}"`, results, this.createItemCard);
-            } catch (error) { dom.contentArea.innerHTML = `<p class="text-text-secondary text-center py-10">Search failed. Please try again later.</p>`; }
-            finally { this.hideLoader(); lucide.createIcons(); }
-        };
-        UI.renderLibraryView = async function() {
-            this.showLoader();
-            try {
-                const history = await DB.getHistory();
-                if (history.length === 0) { dom.contentArea.innerHTML = `<div class="text-center py-20"><i data-lucide="history" class="w-16 h-16 mx-auto text-text-tertiary"></i><h3 class="mt-4 text-xl font-semibold">No History</h3><p class="text-text-secondary mt-2">Songs you play will appear here.</p></div>`; }
-                else { dom.contentArea.innerHTML = this.renderSection("Listening History", history, this.createItemCard); }
-            } catch (error) { console.error("Failed to render library:", error); dom.contentArea.innerHTML = `<p class="text-text-secondary text-center py-10">Could not load your library.</p>`; }
-            finally { this.hideLoader(); lucide.createIcons(); }
-        };
-        UI.renderPlaylistView = async function(playlistData) {
-            this.showLoader();
-            try {
-                const data = await API.getPlaylistItems(playlistData.playlistId);
-                const items = data?.items?.map(item => this.formatItem({ ...item, id: { videoId: item.snippet.resourceId.videoId } })).filter(item => item && item.thumbnail);
-                let content = `<div class="flex flex-col items-center text-center mb-6"><img src="${playlistData.thumbnail}" class="w-40 h-40 rounded-lg shadow-lg mb-4"><h2 class="text-2xl font-bold">${playlistData.title}</h2><p class="text-text-secondary">${playlistData.channel}</p></div>`;
-                content += this.renderSection("Tracks", items, this.createItemCard);
-                dom.contentArea.innerHTML = content;
-            } catch (error) { dom.contentArea.innerHTML = `<p class="text-text-secondary text-center py-10">Could not load playlist tracks.</p>`; }
-            finally { this.hideLoader(); lucide.createIcons(); }
-        };
 
-        main();
-    });
+            // --- IMPROVED VIEW RENDERERS ---
+            const getGreeting = () => {
+                const hour = new Date().getHours();
+                if (hour < 12) return "Good Morning";
+                if (hour < 18) return "Good Afternoon";
+                return "Good Evening";
+            };
+
+            UI.renderHomeView = async function() {
+                this.showLoader();
+                const greeting = getGreeting();
+                let heroSection = `
+                    <div class="px-4 mb-8">
+                        <h1 class="text-4xl font-black mb-6 metallic-text">${greeting}</h1>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div id="heavy-rotation-card" class="hero-card" style="animation-delay: 0.1s;">
+                                <div class="hero-icon-wrapper"><i data-lucide="history" class="w-6 h-6 text-white"></i></div>
+                                <div><p class="font-bold text-text-primary">Your Heavy Rotation</p></div>
+                            </div>
+                            <div class="hero-card" data-search-term="Discover New Music" style="animation-delay: 0.2s;">
+                                <div class="hero-icon-wrapper"><i data-lucide="compass" class="w-6 h-6 text-white"></i></div>
+                                <div><p class="font-bold text-text-primary">Discover New Music</p></div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                let topHitsData;
+                try { topHitsData = await API.getTopHits(); } 
+                catch (error) { console.warn("Primary API (chart) failed, trying fallback search..."); try { topHitsData = await API.search("Top Music Hits", "video"); } catch (fallbackError) { console.error("Fallback API search also failed:", fallbackError); } }
+                const results = await Promise.allSettled([Promise.resolve(topHitsData), DB.getHistory()]);
+                const [topHitsResult, historyResult] = results;
+                let content = heroSection;
+                if (topHitsResult.status === 'fulfilled' && topHitsResult.value?.items) { content += this.renderSection("Top Hits", topHitsResult.value.items.map(this.formatItem), this.createHorizontalCard); } 
+                else { content += `<p class="text-text-secondary mb-8 px-4">Could not load Top Hits.</p>`; }
+                if (historyResult.status === 'fulfilled' && historyResult.value.length > 0) { content += this.renderSection("Recently Played", historyResult.value.slice(0, 10), this.createHorizontalCard); }
+                dom.contentArea.innerHTML = content; this.hideLoader(); lucide.createIcons();
+            };
+
+            UI.renderBrowseView = async function(query) {
+                if (!query) {
+                    dom.searchResultsLabel.classList.add('hidden'); dom.mainContent.style.paddingTop = '';
+                    const categories = [{ name: 'Pop' }, { name: 'Hip-Hop' }, { name: 'Rock' }, { name: 'Electronic' }, { name: 'Chill' }, { name: 'Workout' }, { name: 'Focus' }, { name: 'Indie' }];
+                    const categoriesHtml = categories.map((cat, i) => `<div class="metal-card" data-search-term="${cat.name}" style="animation-delay: ${i * 0.05}s;"><span class="font-extrabold text-lg metallic-text">${cat.name}</span></div>`).join('');
+                    dom.contentArea.innerHTML = `<div class="px-4"><h2 class="text-2xl font-bold mb-4 metallic-text">Browse All</h2><div class="grid grid-cols-2 gap-4">${categoriesHtml}</div></div>`;
+                    return;
+                }
+                this.showLoader();
+                dom.searchResultsLabel.textContent = `Results for "${query}"`;
+                dom.searchResultsLabel.classList.remove('hidden'); 
+                dom.mainContent.style.paddingTop = '11rem';
+                try {
+                    const data = await API.search(query);
+                    const results = data?.items?.map(this.formatItem).filter(Boolean) || [];
+                    if (results.length > 0) { dom.contentArea.innerHTML = `<div data-context-queue='${JSON.stringify(results)}'>${results.map(this.createVerticalCard).join('')}</div>`; } 
+                    else { dom.contentArea.innerHTML = `<p class="text-text-secondary text-center py-10 px-4">No results found for "${query}".</p>`; }
+                } catch (error) { dom.contentArea.innerHTML = `<p class="text-text-secondary text-center py-10 px-4">Search failed. Please try again later.</p>`; } 
+                finally { this.hideLoader(); lucide.createIcons(); }
+            };
+
+            UI.renderLibraryView = async function() {
+                this.showLoader();
+                try {
+                    const history = await DB.getHistory();
+                    if (history.length === 0) { dom.contentArea.innerHTML = `<div class="text-center py-20 px-4"><i data-lucide="music-4" class="w-20 h-20 mx-auto text-text-tertiary"></i><h3 class="mt-6 text-xl font-semibold">Your Library is Empty</h3><p class="text-text-secondary mt-2">Songs you play will appear here. Start listening!</p></div>`; } 
+                    else {
+                        const quickAccessItems = history.slice(0, 4);
+                        const quickAccessHtml = quickAccessItems.map(this.createLibraryGridCard).join('');
+                        let content = `<div class="px-4 mb-8" data-context-queue='${JSON.stringify(quickAccessItems)}'><h2 class="text-2xl font-bold mb-4 metallic-text">Quick Access</h2><div class="grid grid-cols-2 gap-2">${quickAccessHtml}</div></div>`;
+                        content += this.renderSection("Full History", history, this.createVerticalCard);
+                        dom.contentArea.innerHTML = content;
+                    }
+                } catch (error) { console.error("Failed to render library:", error); dom.contentArea.innerHTML = `<p class="text-text-secondary text-center py-10 px-4">Could not load your library.</p>`; } 
+                finally { this.hideLoader(); lucide.createIcons(); }
+            };
+
+            UI.renderPlaylistView = async function(playlistData) {
+                this.showLoader();
+                try {
+                    const data = await API.getPlaylistItems(playlistData.playlistId);
+                    const items = data?.items?.map(item => this.formatItem({ ...item, id: { videoId: item.snippet.resourceId.videoId } })).filter(item => item && item.thumbnail);
+                    let content = `<div class="flex flex-col items-center text-center mb-6 px-4"><img src="${playlistData.thumbnail}" class="w-40 h-40 rounded-lg shadow-lg mb-4"><h2 class="text-2xl font-bold metallic-text">${playlistData.title}</h2><p class="text-text-secondary">${playlistData.channel}</p></div>`;
+                    content += this.renderSection("Tracks", items, this.createVerticalCard);
+                    dom.contentArea.innerHTML = content;
+                } catch (error) { dom.contentArea.innerHTML = `<p class="text-text-secondary text-center py-10 px-4">Could not load playlist tracks.</p>`; } 
+                finally { this.hideLoader(); lucide.createIcons(); }
+            };
+
+            main();
+        });
     </script>
 </body>
 </html>
